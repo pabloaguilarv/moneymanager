@@ -1,5 +1,5 @@
 #custom
-*.py
+theskey.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
