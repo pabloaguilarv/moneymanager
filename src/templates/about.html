@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+
+    About
+
+{% endblock %}
+
+{% block content %}
+
+    About
+
+{% endblock %}
+
+{% block body %} 
+
+    <ol>
+        {% for ele in preferences %} 
+            <li>{{ ele }}</li>
+        {% endfor %}
+    </ol>
+
+{% endblock %} 
