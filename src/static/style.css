@@ -1,0 +1,31 @@
+a {
+    color: rgb(42, 110, 238);
+    text-decoration: none;
+}
+
+a:hover {
+    color: rgb(42, 110, 238);
+    text-decoration: underline;
+}
+
+#create-button {
+    margin-top: 1rem;
+    margin-left: 0.7rem;
+}
+
+#navbar {
+    color: black
+}
+
+#header-text {
+    margin-top: 1rem;
+    margin-left: 0.7rem;
+}
+
+#text {
+    margin-left: 0.7rem;
+}
+
+.form-control {
+    width: 20%;
+}

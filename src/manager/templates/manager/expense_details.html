@@ -1,0 +1,25 @@
+{%extends "base.html"%}
+
+{%block title%}
+
+    Expense details
+
+{%endblock%}
+
+{%block content%}
+
+    {{expense.commerce}} purchase on {{expense.date | date:"d M Y"}} through {{expense.channel}}
+
+{%endblock%}
+    
+{%block body%}
+
+<h2 id="text">{{expense.participants}}</h2>
+<h2 id="text">{{expense.amount_spent}}</h2>
+<h2 id="text">{{expense.refund_amount}}</h2>
+<h2 id="text">{{expense.is_refunded}}</h2>
+<h2 id="text">{{expense.category}}</h2>
+<p id="text"><a href="././update">Update</a></p>
+<p id="text"><a href="././delete">Delete</a></p>
+
+{%endblock%}

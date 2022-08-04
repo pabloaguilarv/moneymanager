@@ -1,0 +1,56 @@
+{%extends 'base.html'%}
+
+{%block title%}
+
+    Expenses
+
+{% endblock %}
+
+{%block content%}
+
+    Expenses
+
+{%endblock%}
+
+{%block body%}
+
+<div class="table-responsive">
+    <table class="table table-hover table-sm">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Commerce</th>
+                <th scope="col">Product(s)</th>
+                <th scope="col">Amount Spent</th>
+                <th scope="col">Refund Amount</th>
+                <th scope="col">Refunded?</th>
+            </tr>
+        </thead>
+        <tbody>
+        {%for expense in set%}
+            <tr>
+                <th scope="row">
+                    <a href="{{expense.get_absolute_url}}">{{expense.date|date:"d M Y"}}</a>
+                </th>
+                <td>
+                    {{expense.commerce}}
+                </td>
+                <td>
+                    {{expense.product}}
+                </td>
+                <td>
+                    {{expense.amount_spent}}
+                </td>
+                <td>
+                    {{expense.refund_amount}}
+                </td>
+                <td>
+                    {{expense.is_refunded}}
+                </td>
+            </tr>
+        {%endfor%}
+        </tbody>
+    </table>
+</div>
+
+{%endblock%}

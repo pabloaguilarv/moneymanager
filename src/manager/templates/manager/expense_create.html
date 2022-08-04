@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+    New Expense
+
+{% endblock %}
+
+{%block content%}
+
+Insert New Expense
+
+{%endblock%}
+
+{%block body%}
+
+<form action="." method="POST">{%csrf_token%}
+    <div class="form-control" aria-describedby="emailHelp">
+        {{form.as_p}}
+    </div>
+    <input type="submit" value="Submit" class="btn btn-primary" id="text">
+</form>
+
+{%endblock%}
