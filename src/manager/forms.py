@@ -32,7 +32,7 @@ class ExpenseForm(forms.ModelForm):
             attrs={
                 'placeholder': 'What was bought',
                 'class': 'form-control',
-                'style': 'width: 200px; height: 100px;',
+                'style': 'width: 200px; height: 80px;',
             }
         )
     )

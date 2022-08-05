@@ -42,12 +42,12 @@ def current_month_expenses(request):
     month = date.today().strftime('%m')
     queryset = Expense.objects.all().filter(date__month=month)
 
-    totals = make_totals(queryset)
+    total = make_totals(queryset)
 
     context = {
         'set': queryset,
-        'total_spent': totals[0],
-        'total_refunded': totals[1],
+        'total_spent': total[0],
+        'total_refunded': total[1],
         'name': 'Current Month'
     }
     return render(request, 'manager/all_expenses.html', context)
@@ -56,12 +56,12 @@ def current_month_expenses(request):
 def all_expenses(request):
     queryset = Expense.objects.all()
 
-    totals = make_totals(queryset)
+    total = make_totals(queryset)
 
     context = {
         'set': queryset,
-        'total_spent': totals[0],
-        'total_refunded': totals[1],
+        'total_spent': total[0],
+        'total_refunded': total[1],
         'name': 'All Expenses'
     }
     return render(request, 'manager/all_expenses.html', context)

@@ -18,4 +18,5 @@ urlpatterns=[
     path('<int:id>/delete/', delete_expense, name='expense-delete'),
     path('all_expenses/', all_expenses, name='expense-delete'),
     path('<int:id>/update/', ExpenseUpdateView.as_view(), name='expense-update'),
+    # path(),
 ]

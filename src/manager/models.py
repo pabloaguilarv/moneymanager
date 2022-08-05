@@ -33,7 +33,8 @@ class Expense(models.Model):
         max_digits=10,
         decimal_places=2,
         blank=True,
-        null=False
+        null=False,
+        default=0
 
     )
     is_refunded = models.BooleanField(
