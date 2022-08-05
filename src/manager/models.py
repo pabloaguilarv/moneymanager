@@ -32,8 +32,9 @@ class Expense(models.Model):
     refund_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        null=True,
-        blank=True
+        blank=True,
+        null=False
+
     )
     is_refunded = models.BooleanField(
         blank=True,

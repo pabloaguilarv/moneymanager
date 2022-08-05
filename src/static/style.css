@@ -20,6 +20,7 @@ a:hover {
 #header-text {
     margin-top: 1rem;
     margin-left: 0.7rem;
+    /* text-align: right; */
 }
 
 #text {
@@ -28,4 +29,12 @@ a:hover {
 
 .form-control {
     width: 20%;
+}
+
+table {
+    empty-cells: show;
+}
+
+.alignment {
+    text-align: center;
 }
