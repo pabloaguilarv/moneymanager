@@ -13,6 +13,14 @@ from datetime import date
 
 # Create your views here.
 
+def make_totals(queryset):
+    total_spent = 0
+    total_refunded = 0
+    for expense in queryset:
+        total_spent += expense.amount_spent
+        total_refunded += expense.refund_amount
+    return total_spent, total_refunded
+
 def create_expense_view(request):
     form = ExpenseForm(
         request.POST or None,
@@ -30,39 +38,17 @@ def create_expense_view(request):
     return render(request, 'manager/expense_create.html', context)
 
 
-def expense_update(request, id):
-    instance = get_object_or_404(Expense,id=id)
-    form = ExpenseForm(
-        request.POST or None,
-        instance=instance
-    )
-
-    print(request, request.POST)
-
-    if request.POST:
-        if form.is_valid():
-            form.save()
-            return redirect(f'/manager/{id}')
-    
-    context = {
-        'form': form
-    }
-    
-    return render(request, 'manager/expense_update.html', context)
-
-
 def current_month_expenses(request):
     month = date.today().strftime('%m')
     queryset = Expense.objects.all().filter(date__month=month)
 
-    for expense in queryset:
-        expense.amount_spent = f'${expense.amount_spent:,.0f}'
-
-        if expense.refund_amount is not None:
-            expense.refund_amount = f'${expense.refund_amount:,.0f}'
+    total = make_totals(queryset)
 
     context = {
-        'set': queryset
+        'set': queryset,
+        'total_spent': total[0],
+        'total_refunded': total[1],
+        'name': 'Current Month'
     }
     return render(request, 'manager/all_expenses.html', context)
 
@@ -70,23 +56,20 @@ def current_month_expenses(request):
 def all_expenses(request):
     queryset = Expense.objects.all()
 
-    for expense in queryset:
-        expense.amount_spent = f'${expense.amount_spent:,.0f}'
-
-        if expense.refund_amount is not None:
-            expense.refund_amount = f'${expense.refund_amount:,.0f}'
+    total = make_totals(queryset)
 
     context = {
-        'set': queryset
+        'set': queryset,
+        'total_spent': total[0],
+        'total_refunded': total[1],
+        'name': 'All Expenses'
     }
     return render(request, 'manager/all_expenses.html', context)
 
 
 def dynamic_view(request, id):
     expense = get_object_or_404(Expense, id=id)
-    expense.amount_spent = f'${expense.amount_spent:,.0f}'
-    if expense.refund_amount:
-        expense.refund_amount = f'${expense.refund_amount:,.0f}'
+
     context = {
         'expense': expense
     }

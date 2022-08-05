@@ -32,7 +32,7 @@ class ExpenseForm(forms.ModelForm):
             attrs={
                 'placeholder': 'What was bought',
                 'class': 'form-control',
-                'style': 'width: 200px; height: 50px;',
+                'style': 'width: 200px; height: 80px;',
             }
         )
     )
@@ -78,7 +78,8 @@ class ExpenseForm(forms.ModelForm):
             'style': 'width: 200px;',
             }
         ),
-        required=False
+        required=False,
+        initial=0
     )
     is_refunded = forms.BooleanField(
         label='Have you been refunded?',

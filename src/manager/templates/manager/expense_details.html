@@ -1,9 +1,8 @@
 {%extends "base.html"%}
+{%load custom_filters%}
 
 {%block title%}
-
     Expense details
-
 {%endblock%}
 
 {%block content%}
@@ -14,9 +13,10 @@
     
 {%block body%}
 
+<h2 id="text">{{expense.product}}</h2>
 <h2 id="text">{{expense.participants}}</h2>
-<h2 id="text">{{expense.amount_spent}}</h2>
-<h2 id="text">{{expense.refund_amount}}</h2>
+<h2 id="text">{{expense.amount_spent | currency}}</h2>
+<h2 id="text">{{expense.refund_amount | currency}}</h2>
 <h2 id="text">{{expense.is_refunded}}</h2>
 <h2 id="text">{{expense.category}}</h2>
 <p id="text"><a href="././update">Update</a></p>
