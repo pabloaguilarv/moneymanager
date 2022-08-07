@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-
+from datetime import date
 # Create your models here.
 
 class Expense(models.Model):
@@ -37,10 +37,11 @@ class Expense(models.Model):
         default=0
 
     )
-    is_refunded = models.BooleanField(
+    is_refunded = models.CharField(
+        max_length=200,
         blank=True,
         null=True,
-        default=False
+        default='N/A'
     )
     category = models.CharField(
         max_length=10,
@@ -52,3 +53,8 @@ class Expense(models.Model):
 
     def get_absolute_url(self):
         return reverse('manager:expense-details', kwargs={'id': self.id})
+
+class Settings(models.Model):
+    start_date = models.DateField()
+
+    end_date = models.DateField()

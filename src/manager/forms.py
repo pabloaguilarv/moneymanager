@@ -1,20 +1,24 @@
-from email.policy import default
 from django import forms
-from .models import Expense
+from .models import (
+    Expense,
+    Settings
+)
+from datetime import date
+from moneymanager import settings
 
 class DateInput(forms.DateInput):
     input_type = 'date'
+    
 
 class ExpenseForm(forms.ModelForm):
     date = forms.DateField(
         label='',
         widget=DateInput(
             attrs={
-                'placeholder': 'Date',
                 'class': 'form-control',
                 'style': 'width: 200px;',
-            }
-        )
+            },
+        ),
     )
     channel = forms.CharField(
         label='',
@@ -81,11 +85,34 @@ class ExpenseForm(forms.ModelForm):
         required=False,
         initial=0
     )
-    is_refunded = forms.BooleanField(
-        label='Have you been refunded?',
+
+    IS_REFUNDED_CHOICES = [
+        ('refunded?', 'Refunded?'),
+        ('not yet', 'Not yet'),
+        ('n/a', 'N/A'),
+        ('refunded', 'Refunded'),
+        ('partially', 'Partially'),
+    ]
+
+    is_refunded = forms.CharField(
+        empty_value='Nothing',
+        label='',
         required=False,
+        widget=forms.Select(
+            choices=IS_REFUNDED_CHOICES,
+            attrs={
+                'class': 'form-control',
+                'style': 'width: 200px;'
+            }
+        ),
+        initial = 'refunded?'
     )
 
+    def clean_is_refunded(self):
+        is_refunded = self.cleaned_data.get('is_refunded')
+        if is_refunded == 'refunded?':
+            return f'n/a'
+        return is_refunded
 
     CATEGORY_CHOICES = [
         ('category', 'Category'),
@@ -102,9 +129,10 @@ class ExpenseForm(forms.ModelForm):
             attrs={
                 'class': 'form-control',
                 'style': 'width: 200px;',
-            }
+            },
+            
         ),
-        initial='select'
+        initial='category'
     )
 
     def clean_category(self):
@@ -134,4 +162,36 @@ class ExpenseForm(forms.ModelForm):
                     'class': 'create-button'
                 }
             )
+        }
+
+class SettingsForm(forms.ModelForm):
+    start_date = forms.DateField(
+        label='',
+        widget=DateInput(
+            attrs={
+                'class': 'form-control',
+                'style': 'width: 200px;',
+            },
+        ),
+        initial=date(date.today().year, date.today().month, 1)
+    )
+    end_date = forms.DateField(
+        label='',
+        widget=DateInput(
+            attrs={
+                'class': 'form-control',
+                'style': 'width: 200px;',
+            },
+        ),
+        initial=date(date.today().year, date.today().month, 28)
+    )
+    class Meta:
+        model = Settings
+        fields = [
+            'start_date',
+            'end_date'
+        ]
+        widgets = {
+            'start_date': DateInput(),
+            'end_date': DateInput(),
         }

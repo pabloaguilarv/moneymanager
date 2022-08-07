@@ -15,9 +15,9 @@ Insert New Expense
 {%block body%}
 
 <form action="." method="POST">{%csrf_token%}
-    <div class="form-control" aria-describedby="emailHelp">
+    <!-- <div class="form-control" aria-describedby="emailHelp"> -->
         {{form.as_p}}
-    </div>
+    <!-- </div> -->
     <input type="submit" value="Submit" class="btn btn-primary" id="text">
 </form>
 

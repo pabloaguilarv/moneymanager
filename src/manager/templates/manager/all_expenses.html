@@ -45,15 +45,14 @@
                         {{expense.refund_amount | currency}}
                     </td>
                     <td>
-                        {{expense.is_refunded}}
+                        {{expense.is_refunded | cap}}
                     </td>
                 </tr>
             {%endfor%}
             </tbody>
             <tfoot>
                 <tr>
-                    <td></td>
-                    <td></td>
+                    <td colspan="2">Real Debt: {{debt | currency}}</td>
                     <td></td>
                     <td>{{total_spent | currency}}</td>
                     <td>{{total_refunded | currency}}</td>

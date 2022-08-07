@@ -1,0 +1,23 @@
+{%extends 'base.html'%}
+{%load custom_filters%}
+
+{%block title%}
+
+    Settings
+
+{%endblock%}
+
+{%block content%}
+
+    Settings
+
+{%endblock%}
+
+{%block body%}
+
+    <form action="." method="POST">{%csrf_token%}
+        {{form.as_p}}
+        <input type="submit" value="Submit" class="btn btn-primary" id="text">
+    </form>
+
+{%endblock%}

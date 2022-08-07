@@ -1,3 +1,4 @@
+import typing
 from django.shortcuts import (
     render,
     redirect,
@@ -7,8 +8,14 @@ from django.shortcuts import (
 from django.views.generic import (
     UpdateView
 )
-from .forms import ExpenseForm
-from .models import Expense
+from .forms import (
+    ExpenseForm,
+    SettingsForm
+)
+from .models import (
+    Expense,
+    Settings
+)
 from datetime import date
 
 # Create your views here.
@@ -20,6 +27,7 @@ def make_totals(queryset):
         total_spent += expense.amount_spent
         total_refunded += expense.refund_amount
     return total_spent, total_refunded
+
 
 def create_expense_view(request):
     form = ExpenseForm(
@@ -39,8 +47,11 @@ def create_expense_view(request):
 
 
 def current_month_expenses(request):
-    month = date.today().strftime('%m')
-    queryset = Expense.objects.all().filter(date__month=month)
+    dates = Settings.objects.first()
+    queryset = Expense.objects.all().filter(
+        date__gte=dates.start_date,
+        date__lte=dates.end_date
+    ).order_by('date')
 
     total = make_totals(queryset)
 
@@ -48,13 +59,14 @@ def current_month_expenses(request):
         'set': queryset,
         'total_spent': total[0],
         'total_refunded': total[1],
-        'name': 'Current Month'
+        'name': 'Current Month',
+        'debt': total[0]-total[1],
     }
     return render(request, 'manager/all_expenses.html', context)
 
 
 def all_expenses(request):
-    queryset = Expense.objects.all()
+    queryset = Expense.objects.all().order_by('date')
 
     total = make_totals(queryset)
 
@@ -62,6 +74,7 @@ def all_expenses(request):
         'set': queryset,
         'total_spent': total[0],
         'total_refunded': total[1],
+        'debt': total[0]-total[1],
         'name': 'All Expenses'
     }
     return render(request, 'manager/all_expenses.html', context)
@@ -88,12 +101,40 @@ def delete_expense(request, id):
     }
     return render(request, 'manager/expense_delete.html', context)
 
+def expense_update(request, id):
+    instance = get_object_or_404(Expense, id=id)
+    form = ExpenseForm(
+        request.POST or None,
+        instance=instance
+    )
 
-class ExpenseUpdateView(UpdateView):
-    template_name = 'manager/expense_update.html'
-    form_class = ExpenseForm
+    if request.POST:
+        if form.is_valid():
+            form.save()
+            form = ExpenseForm()
+            return redirect(f'manager/{id}')
+    
+    context = {
+        'form': form,
+    }
 
-    def get_object(self):
-        id = self.kwargs.get('id')
-        return get_object_or_404(Expense, id=id)
+    return render(request, 'manager/expense_update.html', context)
 
+
+def settings_update(request):
+    instance = Settings.objects.first()
+    form = SettingsForm(
+        request.POST or None,
+        instance=instance
+    )
+
+    if request.POST:
+        if form.is_valid():
+            form.save()
+            return redirect('/manager/current_month')
+    
+    context = {
+        'form': form
+    }
+
+    return render(request, 'manager/settings.html', context)
