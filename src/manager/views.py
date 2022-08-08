@@ -101,7 +101,7 @@ def delete_expense(request, id):
     }
     return render(request, 'manager/expense_delete.html', context)
 
-def expense_update(request, id):
+# def expense_update(request, id):
     instance = get_object_or_404(Expense, id=id)
     form = ExpenseForm(
         request.POST or None,
@@ -119,6 +119,15 @@ def expense_update(request, id):
     }
 
     return render(request, 'manager/expense_update.html', context)
+
+
+class ExpenseUpdateView(UpdateView):
+    template_name = 'manager/expense_update.html'
+    form_class = ExpenseForm
+
+    def get_object(self):
+        id = self.kwargs.get('id')
+        return get_object_or_404(Expense, id=id)
 
 
 def settings_update(request):

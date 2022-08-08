@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, re_path
 from .views import (
+    ExpenseUpdateView,
     settings_update,
     all_expenses,
     create_expense_view,
@@ -18,6 +19,7 @@ urlpatterns=[
     path('<int:id>/', dynamic_view, name='expense-details'),
     path('<int:id>/delete/', delete_expense, name='expense-delete'),
     path('all_expenses/', all_expenses, name='expense-delete'),
-    path('<int:id>/update/', expense_update, name='expense-update'),
+    # path('<int:id>/update/', expense_update, name='expense-update'),
+    path('<int:id>/update/', ExpenseUpdateView.as_view(), name='expense-update'),
     path('settings/', settings_update, name='settings'),
 ]
