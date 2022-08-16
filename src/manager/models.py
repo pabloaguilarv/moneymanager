@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from datetime import date
 # Create your models here.
 
 class Expense(models.Model):
@@ -52,8 +53,37 @@ class Expense(models.Model):
 
     def get_absolute_url(self):
         return reverse('manager:expense-details', kwargs={'id': self.id})
+    
+    def make_totals(queryset):
+        total_spent = 0
+        total_refunded = 0
+
+        for expense in queryset:
+            total_spent += expense.amount_spent
+            total_refunded += expense.refund_amount
+            
+        return total_spent, total_refunded
 
 class Settings(models.Model):
     start_date = models.DateField()
 
     end_date = models.DateField()
+
+class Stats(models.Model):
+    def get_week_dates(self):
+        weekday = date.weekday(date.today())
+        day_date = date.today().day
+
+        max_date_day = 6
+
+        self.week_start = day_date-weekday
+        self.week_end = day_date+max_date_day-weekday
+
+
+    def set_week_dates(self):
+        year = date.today().year
+        month = date.today().month
+        self.week_start = date(year, month, self.week_start)
+        self.week_end = date(year, month, self.week_end)
+
+    

@@ -1,14 +1,15 @@
 from django import forms
 from .models import (
     Expense,
-    Settings
+    Settings,
+    Stats,
 )
 from datetime import date
 from moneymanager import settings
 
 class DateInput(forms.DateInput):
-    input_type = 'date'
-    
+    input_type = 'date' 
+
 
 class ExpenseForm(forms.ModelForm):
     date = forms.DateField(
@@ -24,7 +25,7 @@ class ExpenseForm(forms.ModelForm):
         label='',
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Payment Channel',
+                'placeholder': 'Channel',
                 'class': 'form-control',
                 'style': 'width: 200px;',
             }
@@ -34,7 +35,7 @@ class ExpenseForm(forms.ModelForm):
         label='',
         widget=forms.Textarea(
             attrs={
-                'placeholder': 'What was bought',
+                'placeholder': 'What',
                 'class': 'form-control',
                 'style': 'width: 200px; height: 80px;',
             }
@@ -44,7 +45,7 @@ class ExpenseForm(forms.ModelForm):
         label='',
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Where was it bought',
+                'placeholder': 'Where',
                 'class': 'form-control',
                 'style': 'width: 200px;',
             }
@@ -67,7 +68,7 @@ class ExpenseForm(forms.ModelForm):
         label='',
         widget=forms.NumberInput(
             attrs={
-                'placeholder': 'How much was spent',
+                'placeholder': 'How much',
                 'class': 'form-control',
                 'style': 'width: 200px;',
             }
@@ -77,14 +78,19 @@ class ExpenseForm(forms.ModelForm):
         label='',
         widget = forms.NumberInput(
             attrs={
-            'placeholder': 'Amount to receive back',
+            'placeholder': 'To receive back',
             'class': 'form-control',
             'style': 'width: 200px;',
             }
         ),
         required=False,
-        initial=0
     )
+
+    def clean_refund_amount(self):
+        refund_amount = self.cleaned_data.get('refund_amount')
+        if refund_amount is None:
+            return 0
+        return refund_amount
 
     IS_REFUNDED_CHOICES = [
         ('refunded?', 'Refunded?'),
@@ -164,26 +170,29 @@ class ExpenseForm(forms.ModelForm):
             )
         }
 
+
 class SettingsForm(forms.ModelForm):
+    year = date.today().year
+    month = date.today().month
     start_date = forms.DateField(
         label='',
         widget=DateInput(
             attrs={
                 'class': 'form-control',
-                'style': 'width: 200px;',
+                'style': 'width: 200px;'
             },
         ),
-        initial=date(date.today().year, date.today().month, 1)
+        initial=date(year, month, 1)
     )
     end_date = forms.DateField(
         label='',
         widget=DateInput(
             attrs={
                 'class': 'form-control',
-                'style': 'width: 200px;',
+                'style': 'width: 200px;'
             },
         ),
-        initial=date(date.today().year, date.today().month, 28)
+        initial=date(year, month, 28)
     )
     class Meta:
         model = Settings
@@ -195,3 +204,4 @@ class SettingsForm(forms.ModelForm):
             'start_date': DateInput(),
             'end_date': DateInput(),
         }
+

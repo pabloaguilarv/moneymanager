@@ -1,0 +1,22 @@
+{%extends 'base.html'%}
+{%load custom_filters%}
+
+{%block title%}
+
+    Stats
+
+{%endblock%}
+
+{%block content%}
+
+    Week Expenses
+
+{%endblock%}
+
+{%block body%}
+
+    <h1>You have spent {{spent | currency}}</h1>
+    <h1>Will get {{to_refund | currency}} back</h1>
+    <h1>Your real debt is {{real_debt | currency}}</h1>
+
+{%endblock%}

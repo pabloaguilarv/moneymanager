@@ -1,4 +1,3 @@
-import typing
 from django.shortcuts import (
     render,
     redirect,
@@ -6,7 +5,11 @@ from django.shortcuts import (
     get_list_or_404,
 )
 from django.views.generic import (
-    UpdateView
+    UpdateView,
+    ListView,
+    CreateView,
+    DeleteView,
+    DetailView,
 )
 from .forms import (
     ExpenseForm,
@@ -14,20 +17,12 @@ from .forms import (
 )
 from .models import (
     Expense,
-    Settings
+    Settings,
+    Stats
 )
 from datetime import date
 
 # Create your views here.
-
-def make_totals(queryset):
-    total_spent = 0
-    total_refunded = 0
-    for expense in queryset:
-        total_spent += expense.amount_spent
-        total_refunded += expense.refund_amount
-    return total_spent, total_refunded
-
 
 def create_expense_view(request):
     form = ExpenseForm(
@@ -53,7 +48,7 @@ def current_month_expenses(request):
         date__lte=dates.end_date
     ).order_by('date')
 
-    total = make_totals(queryset)
+    total = Expense.make_totals(queryset)
 
     context = {
         'set': queryset,
@@ -68,7 +63,7 @@ def current_month_expenses(request):
 def all_expenses(request):
     queryset = Expense.objects.all().order_by('date')
 
-    total = make_totals(queryset)
+    total = Expense.make_totals(queryset)
 
     context = {
         'set': queryset,
@@ -147,3 +142,23 @@ def settings_update(request):
     }
 
     return render(request, 'manager/settings.html', context)
+
+
+def week_stats(request):
+    Stats.get_week_dates(Stats)
+    Stats.set_week_dates(Stats)
+
+    queryset = Expense.objects.all().filter(
+        date__gte = Stats.week_start,
+        date__lte = Stats.week_end
+    )
+
+    totals = Expense.make_totals(queryset)
+
+    context = {
+        'spent': totals[0],
+        'to_refund': totals[1],
+        'real_debt': totals[0]-totals[1],
+    }
+
+    return render(request, 'manager/stats.html', context)
