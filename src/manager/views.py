@@ -1,4 +1,3 @@
-import typing
 from django.shortcuts import (
     render,
     redirect,
@@ -6,28 +5,25 @@ from django.shortcuts import (
     get_list_or_404,
 )
 from django.views.generic import (
-    UpdateView
+    UpdateView,
+    ListView,
+    CreateView,
+    DeleteView,
+    DetailView,
 )
 from .forms import (
     ExpenseForm,
-    SettingsForm
+    SettingsForm,
+    StatsForm,
 )
 from .models import (
     Expense,
-    Settings
+    Settings,
+    Stats
 )
 from datetime import date
 
 # Create your views here.
-
-def make_totals(queryset):
-    total_spent = 0
-    total_refunded = 0
-    for expense in queryset:
-        total_spent += expense.amount_spent
-        total_refunded += expense.refund_amount
-    return total_spent, total_refunded
-
 
 def create_expense_view(request):
     form = ExpenseForm(
@@ -47,13 +43,41 @@ def create_expense_view(request):
 
 
 def current_month_expenses(request):
+    """
+    It takes the first object from the Settings model, and uses the start_date and end_date fields to
+    filter the Expense model
+    
+    :param request: The request object
+    :return: A list of all expenses for the current month.
+    """
+    instance = Stats.objects.first()
+    form = StatsForm(
+        request.POST or None,
+        instance=instance
+    )
+
+    if request.POST:
+        channel = request.POST.get('channel')
+        sort = request.POST.get('sort')
+        if form.is_valid():
+            form.save()
+            instance = Stats.objects.first()
+            form = StatsForm(instance=instance)
+    else:
+        channel = instance.channel
+        sort = instance.sort
+
     dates = Settings.objects.first()
     queryset = Expense.objects.all().filter(
         date__gte=dates.start_date,
-        date__lte=dates.end_date
-    ).order_by('date')
+        date__lte=dates.end_date,
+        channel__contains = channel if channel != 'all methods' else ''
+    ).order_by(
+        'date' if sort == 'ascending' else '-date',
+        'id' if sort == 'ascending' else '-id',
+    )
 
-    total = make_totals(queryset)
+    total = Expense.make_totals(queryset)
 
     context = {
         'set': queryset,
@@ -61,6 +85,7 @@ def current_month_expenses(request):
         'total_refunded': total[1],
         'name': 'Current Month',
         'debt': total[0]-total[1],
+        'form': form,
     }
     return render(request, 'manager/all_expenses.html', context)
 
@@ -68,14 +93,14 @@ def current_month_expenses(request):
 def all_expenses(request):
     queryset = Expense.objects.all().order_by('date')
 
-    total = make_totals(queryset)
+    total = Expense.make_totals(queryset)
 
     context = {
         'set': queryset,
         'total_spent': total[0],
         'total_refunded': total[1],
         'debt': total[0]-total[1],
-        'name': 'All Expenses'
+        'name': 'All Expenses',
     }
     return render(request, 'manager/all_expenses.html', context)
 
@@ -105,7 +130,7 @@ def expense_update(request, id):
     instance = get_object_or_404(Expense, id=id)
     form = ExpenseForm(
         request.POST or None,
-        instance=instance
+        instance=instance,
     )
 
     if request.POST:
@@ -119,6 +144,15 @@ def expense_update(request, id):
     }
 
     return render(request, 'manager/expense_update.html', context)
+
+
+class ExpenseUpdateView(UpdateView):
+    template_name = 'manager/expense_update.html'
+    form_class = ExpenseForm
+
+    def get_object(self):
+        id = self.kwargs.get('id')
+        return get_object_or_404(Expense, id=id)
 
 
 def settings_update(request):
@@ -138,3 +172,26 @@ def settings_update(request):
     }
 
     return render(request, 'manager/settings.html', context)
+
+
+def week_stats(request):
+    Stats.get_week_dates(Stats)
+    dates = Stats.set_week_dates(Stats)
+
+    queryset = Expense.objects.all().filter(
+        date__gte = dates[0],
+        date__lte = dates[1]
+    )
+
+    totals = Expense.make_totals(queryset)
+
+    context = {
+        'spent': totals[0],
+        'to_refund': totals[1],
+        'real_debt': totals[0]-totals[1],
+        'set': queryset,
+        'start_date': dates[0],
+        'end_date': dates[1],
+    }
+
+    return render(request, 'manager/stats.html', context)

@@ -53,8 +53,50 @@ class Expense(models.Model):
 
     def get_absolute_url(self):
         return reverse('manager:expense-details', kwargs={'id': self.id})
+    
+    def make_totals(queryset):
+        total_spent = 0
+        total_refunded = 0
+
+        for expense in queryset:
+            total_spent += expense.amount_spent
+            total_refunded += expense.refund_amount
+            
+        return total_spent, total_refunded
 
 class Settings(models.Model):
     start_date = models.DateField()
 
     end_date = models.DateField()
+
+class Stats(models.Model):
+    channel = models.CharField(
+        max_length = 120,
+        null = True,
+        blank = True,
+        default='all methods'
+    )
+    sort = models.CharField(
+            max_length=120,
+            null=True,
+            blank=True,
+            default='ascending'
+    )
+
+    def get_week_dates(self):
+        weekday = date.weekday(date.today())
+        day_date = date.today().day
+
+        max_date_day = 6
+
+        self.week_start = day_date-weekday
+        self.week_end = day_date+max_date_day-weekday
+
+
+    def set_week_dates(self):
+        year = date.today().year
+        month = date.today().month
+        week_start = date(year, month, self.week_start)
+        week_end = date(year, month, self.week_end)
+
+        return week_start, week_end
