@@ -10,7 +10,7 @@ from .views import (
     dynamic_view,
     delete_expense,
     week_stats,
-    # expense_update
+    expense_update
 )
 
 app_name='manager'

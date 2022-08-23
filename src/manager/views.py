@@ -13,7 +13,8 @@ from django.views.generic import (
 )
 from .forms import (
     ExpenseForm,
-    SettingsForm
+    SettingsForm,
+    StatsForm,
 )
 from .models import (
     Expense,
@@ -42,11 +43,39 @@ def create_expense_view(request):
 
 
 def current_month_expenses(request):
+    """
+    It takes the first object from the Settings model, and uses the start_date and end_date fields to
+    filter the Expense model
+    
+    :param request: The request object
+    :return: A list of all expenses for the current month.
+    """
+    instance = Stats.objects.first()
+    form = StatsForm(
+        request.POST or None,
+        instance=instance
+    )
+
+    if request.POST:
+        channel = request.POST.get('channel')
+        sort = request.POST.get('sort')
+        if form.is_valid():
+            form.save()
+            instance = Stats.objects.first()
+            form = StatsForm(instance=instance)
+    else:
+        channel = instance.channel
+        sort = instance.sort
+
     dates = Settings.objects.first()
     queryset = Expense.objects.all().filter(
         date__gte=dates.start_date,
-        date__lte=dates.end_date
-    ).order_by('date')
+        date__lte=dates.end_date,
+        channel__contains = channel if channel != 'all methods' else ''
+    ).order_by(
+        'date' if sort == 'ascending' else '-date',
+        'id' if sort == 'ascending' else '-id',
+    )
 
     total = Expense.make_totals(queryset)
 
@@ -56,6 +85,7 @@ def current_month_expenses(request):
         'total_refunded': total[1],
         'name': 'Current Month',
         'debt': total[0]-total[1],
+        'form': form,
     }
     return render(request, 'manager/all_expenses.html', context)
 
@@ -70,7 +100,7 @@ def all_expenses(request):
         'total_spent': total[0],
         'total_refunded': total[1],
         'debt': total[0]-total[1],
-        'name': 'All Expenses'
+        'name': 'All Expenses',
     }
     return render(request, 'manager/all_expenses.html', context)
 
@@ -96,11 +126,11 @@ def delete_expense(request, id):
     }
     return render(request, 'manager/expense_delete.html', context)
 
-# def expense_update(request, id):
+def expense_update(request, id):
     instance = get_object_or_404(Expense, id=id)
     form = ExpenseForm(
         request.POST or None,
-        instance=instance
+        instance=instance,
     )
 
     if request.POST:
@@ -146,11 +176,11 @@ def settings_update(request):
 
 def week_stats(request):
     Stats.get_week_dates(Stats)
-    Stats.set_week_dates(Stats)
+    dates = Stats.set_week_dates(Stats)
 
     queryset = Expense.objects.all().filter(
-        date__gte = Stats.week_start,
-        date__lte = Stats.week_end
+        date__gte = dates[0],
+        date__lte = dates[1]
     )
 
     totals = Expense.make_totals(queryset)
@@ -159,6 +189,9 @@ def week_stats(request):
         'spent': totals[0],
         'to_refund': totals[1],
         'real_debt': totals[0]-totals[1],
+        'set': queryset,
+        'start_date': dates[0],
+        'end_date': dates[1],
     }
 
     return render(request, 'manager/stats.html', context)

@@ -21,16 +21,32 @@ class ExpenseForm(forms.ModelForm):
             },
         ),
     )
+
+    CHANNEL_CHOICES = [
+        ('channel', 'Channel'),
+        ('credit card', 'Credit Card'),
+        ('cash', 'Cash'),
+        ('bank transfer', 'Bank Transfer'),
+    ]
     channel = forms.CharField(
         label='',
-        widget=forms.TextInput(
+        widget=forms.Select(
+            choices=CHANNEL_CHOICES,
             attrs={
-                'placeholder': 'Channel',
                 'class': 'form-control',
                 'style': 'width: 200px;',
             }
-        )
+        ),
+        initial='channel',
+        required=True
     )
+
+    def clean_channel(self):
+        channel = self.cleaned_data.get('channel')
+        if channel == 'channel':
+            raise forms.ValidationError('Select a Channel.')
+        return channel
+        
     product = forms.CharField(
         label='',
         widget=forms.Textarea(
@@ -205,3 +221,48 @@ class SettingsForm(forms.ModelForm):
             'end_date': DateInput(),
         }
 
+class StatsForm(forms.ModelForm):
+    CHANNEL_CHOICES = [
+        ('all methods', 'All methods'),
+        ('credit card', 'Credit Card'),
+        ('cash', 'Cash'),
+        ('bank transfer', 'Bank Transfer'),
+    ]
+
+    channel = forms.CharField(
+        label='',
+        widget=forms.Select(
+            choices = CHANNEL_CHOICES,
+            attrs={
+                'class': 'form-control',
+                'style': 'width: 200px;',
+            },
+        ),
+        initial = 'all',
+        required=False,
+    )
+
+    SORT_CHOICES = [
+        ('ascending', 'Ascending'),
+        ('descending', 'Descending'),
+    ]
+
+    sort = forms.CharField(
+        label='',
+        widget=forms.Select(
+            choices=SORT_CHOICES,
+            attrs={
+                'class': 'form-control',
+                'style': 'width: 200px;',
+            },
+        ),
+        initial = 'ascending',
+        required=False
+    )
+
+    class Meta:
+        model = Stats
+        fields = [
+            'channel',
+            'sort'
+        ]

@@ -70,6 +70,19 @@ class Settings(models.Model):
     end_date = models.DateField()
 
 class Stats(models.Model):
+    channel = models.CharField(
+        max_length = 120,
+        null = True,
+        blank = True,
+        default='all methods'
+    )
+    sort = models.CharField(
+            max_length=120,
+            null=True,
+            blank=True,
+            default='ascending'
+    )
+
     def get_week_dates(self):
         weekday = date.weekday(date.today())
         day_date = date.today().day
@@ -83,7 +96,7 @@ class Stats(models.Model):
     def set_week_dates(self):
         year = date.today().year
         month = date.today().month
-        self.week_start = date(year, month, self.week_start)
-        self.week_end = date(year, month, self.week_end)
+        week_start = date(year, month, self.week_start)
+        week_end = date(year, month, self.week_end)
 
-    
+        return week_start, week_end
