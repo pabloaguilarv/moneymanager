@@ -235,7 +235,7 @@ class StatsForm(forms.ModelForm):
             choices = CHANNEL_CHOICES,
             attrs={
                 'class': 'form-control',
-                'style': 'width: 200px;',
+                'style': 'width: 200px;float:left;',
             },
         ),
         initial = 'all',
@@ -253,7 +253,7 @@ class StatsForm(forms.ModelForm):
             choices=SORT_CHOICES,
             attrs={
                 'class': 'form-control',
-                'style': 'width: 200px;',
+                'style': 'width: 200px;float:left',
             },
         ),
         initial = 'ascending',

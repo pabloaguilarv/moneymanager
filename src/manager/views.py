@@ -57,24 +57,23 @@ def current_month_expenses(request):
     )
 
     if request.POST:
-        channel = request.POST.get('channel')
-        sort = request.POST.get('sort')
+        Stats.set_filters_POST(Stats,request)
+
         if form.is_valid():
             form.save()
             instance = Stats.objects.first()
             form = StatsForm(instance=instance)
     else:
-        channel = instance.channel
-        sort = instance.sort
+        Stats.set_filters(Stats,instance)
 
     dates = Settings.objects.first()
     queryset = Expense.objects.all().filter(
         date__gte=dates.start_date,
         date__lte=dates.end_date,
-        channel__contains = channel if channel != 'all methods' else ''
+        channel__contains = Stats.channel if Stats.channel != 'all methods' else ''
     ).order_by(
-        'date' if sort == 'ascending' else '-date',
-        'id' if sort == 'ascending' else '-id',
+        'date' if Stats.sort == 'ascending' else '-date',
+        'id' if Stats.sort == 'ascending' else '-id',
     )
 
     total = Expense.make_totals(queryset)
@@ -175,15 +174,19 @@ def settings_update(request):
 
 
 def week_stats(request):
-    Stats.get_week_dates(Stats)
-    dates = Stats.set_week_dates(Stats)
-
+    dates = Stats.get_week_range(Stats)
+    
     queryset = Expense.objects.all().filter(
         date__gte = dates[0],
         date__lte = dates[1]
     )
+    prev_queryset = Expense.objects.all().filter(
+        date__gte = dates[2],
+        date__lte = dates[3]
+    )
 
     totals = Expense.make_totals(queryset)
+    prev_totals = Expense.make_totals(prev_queryset)
 
     context = {
         'spent': totals[0],
@@ -192,6 +195,10 @@ def week_stats(request):
         'set': queryset,
         'start_date': dates[0],
         'end_date': dates[1],
+        'prev_spent': prev_totals[0],
+        'prev_to_refund': prev_totals[1],
+        'prev_real_debt': prev_totals[0] - prev_totals[1],
+        'prev_set': prev_queryset,
     }
 
     return render(request, 'manager/stats.html', context)

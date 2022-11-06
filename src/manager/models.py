@@ -1,6 +1,9 @@
 from django.db import models
 from django.urls import reverse
-from datetime import date
+from datetime import (
+    date,
+    timedelta
+)
 # Create your models here.
 
 class Expense(models.Model):
@@ -82,21 +85,30 @@ class Stats(models.Model):
             blank=True,
             default='ascending'
     )
+    
+    def get_week_range(self):
+        current_date = date.today()
 
-    def get_week_dates(self):
-        weekday = date.weekday(date.today())
-        day_date = date.today().day
+        week_days = 6
 
-        max_date_day = 6
+        week_day = date.weekday(current_date)
 
-        self.week_start = day_date-weekday
-        self.week_end = day_date+max_date_day-weekday
+        days_to_week_end = week_days - week_day
+
+        week_start = current_date - timedelta(days = week_day)
+        week_end = current_date + timedelta(days = days_to_week_end)
+
+        prev_start = week_start - timedelta(days = 7)
+        prev_end = week_end - timedelta(days = 7)
+
+        return week_start, week_end, prev_start, prev_end
 
 
-    def set_week_dates(self):
-        year = date.today().year
-        month = date.today().month
-        week_start = date(year, month, self.week_start)
-        week_end = date(year, month, self.week_end)
+    def set_filters_POST(self, request):
+        self.channel = request.POST.get('channel')
+        self.sort = request.POST.get('sort')
 
-        return week_start, week_end
+
+    def set_filters(self,instance):
+        self.channel = instance.channel
+        self.sort = instance.sort

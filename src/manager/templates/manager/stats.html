@@ -65,4 +65,58 @@
         </div>
     </div>
 
+    <h1 id="header-text">
+        Previous Week
+    </h1>
+
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <table class="table table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Commerce</th>
+                        <th scope="col">Product(s)</th>
+                        <th scope="col">Amount Spent</th>
+                        <th scope="col">Refund Amount</th>
+                        <th scope="col">Refunded?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {%for prev_expense in prev_set%}
+                    <tr>
+                        <th scope="row">
+                            <a href="{{prev_expense.get_absolute_url}}">{{prev_expense.date|date:"d M Y"}}</a>
+                        </th>
+                        <td>
+                            {{prev_expense.commerce}}
+                        </td>
+                        <td>
+                            {{prev_expense.product}}
+                        </td>
+                        <td>
+                            {{prev_expense.amount_spent | currency}}
+                        </td>
+                        <td>
+                            {{prev_expense.refund_amount | currency}}
+                        </td>
+                        <td>
+                            {{prev_expense.is_refunded | cap}}
+                        </td>
+                    </tr>
+                {%endfor%}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2">Real Debt: {{prev_real_debt | currency}}</td>
+                        <td></td>
+                        <td>{{prev_spent | currency}}</td>
+                        <td>{{prev_to_refund | currency}}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
 {%endblock%}
